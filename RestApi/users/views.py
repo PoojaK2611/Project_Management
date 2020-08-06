@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.contrib.auth import login, logout
 from django.contrib.auth.hashers import check_password
 
@@ -6,11 +5,10 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.authtoken.models import Token
+
 
 from .models import Client, Project, MyUser
 from .serializers import ClientSerializer, ProjectSerializer, MyUserSerializer
-
 
 import logging
 
@@ -26,7 +24,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return MyUser.objects.all()
 
     @action(detail=False, methods=["POST"], permission_classes=[~IsAuthenticated])
-    def login_with_password(self,request):
+    def login_with_password(self, request):
         try:
             username = request.data.get('username')
             if not username:
@@ -38,7 +36,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 try:
                     user = MyUser.objects.get(username=username, is_active=True)
                 except MyUser.DoesNotExist:
-                    return Response({'detail':'User does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'detail': 'User does not exist.'}, status=status.HTTP_400_BAD_REQUEST)
                 if not user or not user.password:
                     return Response({'detail': 'Unauthorized'}, status=status.HTTP_401_UNAUTHORIZED)
                 logger.info(password + ' - ' + user.password)
@@ -46,14 +44,7 @@ class UserViewSet(viewsets.ModelViewSet):
                     return Response({'detail': 'Unauthorised'}, status=401)
 
                 serializer = MyUserSerializer(user)
-                # token = Token.objects.filter(user=user).first()
-                # if not token:
-                #     Token.objects.create(user=user)
-                #     print(token.key)
-                #     token=Token.objects.filter(user=user).first()
-
                 response_data = serializer.data
-                # response_data['token']= token.key
                 login(request, user)
             return Response(response_data)
         except Exception as e:
@@ -79,6 +70,12 @@ class ClientViewSet(viewsets.ModelViewSet):
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
-    queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            print(self.request.user)
+            return Project.objects.all()
+
+

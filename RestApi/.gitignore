@@ -111,9 +111,6 @@ env.bak/
 venv.bak/
 
 
-#  document
-upload_content_doc/
-
 # mypy
 .mypy_cache/
 .dmypy.json
