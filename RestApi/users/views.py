@@ -75,7 +75,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.request.user.is_authenticated:
-            print(self.request.user)
             return Project.objects.all()
 
 

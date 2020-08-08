@@ -11,6 +11,7 @@ class MyUserSerializer(serializers.ModelSerializer):
 
 class ProjectSerializer(serializers.ModelSerializer):
     user = MyUserSerializer(read_only=True, many=True)
+    created_by = serializers.StringRelatedField( read_only=True)
 
     class Meta:
         model = Project
@@ -23,6 +24,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 
 class ClientSerializer(serializers.ModelSerializer):
+    created_by = serializers.StringRelatedField( read_only=True)
 
     class Meta:
         model = Client
